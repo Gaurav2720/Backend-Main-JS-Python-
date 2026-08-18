@@ -2,6 +2,12 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
+app.set('view engine', 'ejs');
+app.set('views', './views');
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.get('/', (req, res) => {
   res.send('Welcome to Express!');
 });
@@ -28,6 +34,7 @@ app.get('/json', (req, res) => {
 app.get('/status', (req, res) => {
   res.status(201).json({ message: 'Created successfully' });
 });
+
 app.get('/user/:id', (req, res) => {
   const userId = req.params.id;
   res.json({
@@ -43,6 +50,7 @@ app.get('/product/:category/:id', (req, res) => {
     productId: id
   });
 });
+
 app.get('/search', (req, res) => {
   const { q, page, limit } = req.query;
   res.json({
@@ -56,9 +64,9 @@ app.get('/calculate', (req, res) => {
   const { num1, num2, operation } = req.query;
   const n1 = parseFloat(num1);
   const n2 = parseFloat(num2);
-  
+
   let result;
-  switch(operation) {
+  switch (operation) {
     case 'add':
       result = n1 + n2;
       break;
@@ -74,8 +82,46 @@ app.get('/calculate', (req, res) => {
     default:
       result = 'Invalid operation';
   }
-  
+
   res.json({ num1: n1, num2: n2, operation, result });
+});
+
+app.post('/register', (req, res) => {
+  const { username, email, password } = req.body;
+
+  res.json({
+    message: 'Registration successful',
+    user: {
+      username,
+      email
+    }
+  });
+});
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  if (email === 'test@example.com' && password === 'password123') {
+    res.json({
+      success: true,
+      message: 'Login successful',
+      token: 'sample-jwt-token'
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid credentials'
+    });
+  }
+});
+
+app.get('/register-form', (req, res) => {
+  res.render('register');
+});
+
+app.post('/students/register', (req, res) => {
+  const { name, email, course, semester } = req.body;
+  res.render('result', { name, email, course, semester });
 });
 
 app.listen(PORT, () => {

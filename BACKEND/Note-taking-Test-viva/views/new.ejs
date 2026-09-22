@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Note</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📝 Add a New Note</h1>
+      <a href="/" class="btn btn-secondary">← Back to Notes</a>
+    </header>
+
+    <% if (typeof error !== "undefined" && error) { %>
+      <div class="error-msg">
+        ⚠️ <%= error %>
+      </div>
+    <% } %>
+
+    <form action="/notes" method="POST" class="note-form">
+      <div class="form-group">
+        <label for="title">Title <span class="required">*</span></label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Enter note title"
+          value="<%= typeof title !== 'undefined' ? title : '' %>"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="content">Content <span class="required">*</span></label>
+        <textarea
+          id="content"
+          name="content"
+          rows="6"
+          placeholder="Write your note content here..."
+          required
+        ><%= typeof content !== 'undefined' ? content : '' %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <input
+          type="text"
+          id="category"
+          name="category"
+          placeholder="e.g. Study, Work, Personal"
+          value="<%= typeof category !== 'undefined' ? category : '' %>"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">Add Note</button>
+    </form>
+  </div>
+</body>
+</html>

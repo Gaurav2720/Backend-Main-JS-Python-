@@ -70,3 +70,51 @@ class Enrollment(Base):
 # Create tables
 Base.metadata.create_all(engine)
 
+# --- CRUD Operations ---
+
+# CREATE: Adding new data
+print("\n--- CREATE ---")
+new_student = Student(
+    name="Aarav",
+    email="Aarav@upes.ac.in",  # Changed to be unique
+    branch="CSE",
+    enrollment_date=date(2024, 8, 1),
+    department_id=1  # Ensure this department ID exists in departments table
+)
+session.add(new_student)
+# session.commit() is essential. Without it, the changes remain in memory 
+# and are not written to the 'students.db' file.
+session.commit()
+print("Student added and committed to the database.")
+
+# READ: Retrieving data
+print("\n--- READ ---")
+students = session.query(Student).filter(Student.branch == "CSE").all()
+# Fetching the first student to demonstrate
+student = session.query(Student).filter_by(id=1).first()
+
+print(f"Retrieved student (ID 1): {student.name if student else 'Not Found'}")
+print(f"Retrieved all CSE students: {[s.name for s in students]}")
+
+# UPDATE: Modifying data
+print("\n--- UPDATE ---")
+if student:
+    # Modify the object in memory
+    student.branch = "ECE"
+    # Commit to persist the change in the database file
+    session.commit()
+    print(f"Student {student.name} branch updated to ECE in the database.")
+
+# DELETE: Removing data
+print("\n--- DELETE ---")
+# Let's delete the student we just created (assuming it's the one with id=2 or similar)
+# We need to find the student first
+student_to_delete = session.query(Student).filter_by(name="Aarav").first()
+if student_to_delete:
+    session.delete(student_to_delete)
+    # Commit to finalize the deletion in the database file
+    session.commit()
+    print("Student 'Aarav' deleted from the database.")
+else:
+    print("Student 'Aarav' not found for deletion.")
+

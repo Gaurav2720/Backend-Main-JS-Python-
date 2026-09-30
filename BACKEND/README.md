@@ -61,6 +61,44 @@ BACKEND/
 - [MongoDB](https://www.mongodb.com/) (Local service or Atlas URI)
 - [Python 3.x](https://www.python.org/)
 
+### Development Process & Setup Instructions
+
+#### Step 1: Initializing the Project
+1. Initialize the backend project using Node.js:
+   ```bash
+   npm init -y
+   ```
+   *This creates the `package.json` file for managing dependencies.*
+
+#### Step 2: Installing Dependencies
+The following dependencies were installed to set up the server, database connectivity, and routing:
+```bash
+npm install express mongoose dotenv cors
+```
+*   **express**: Web framework for Node.js routing.
+*   **mongoose**: Object Data Modeling (ODM) library for MongoDB.
+*   **dotenv**: To manage environment variables.
+*   **cors**: To enable Cross-Origin Resource Sharing.
+
+For development, `nodemon` is installed globally or as a dev dependency to auto-restart the server on file changes:
+```bash
+npm install -g nodemon
+```
+
+#### Step 3: Server Configuration
+1. Created `server.js` in the `Server/` directory.
+2. Set up basic Express app configuration, added middleware (`express.json()`, `cors()`), and started the server listening on a specified port (e.g., 3000).
+
+#### Step 4: Database Connection
+1. Set up a MongoDB connection using Mongoose in `server.js` or a separate `config/db.js` file.
+2. Verified connection success by logging a confirmation message to the console.
+
+#### Step 5: Lab Work & Experiments Execution
+1. Each lab experiment (e.g., `Lab5`, `Lab12`) is placed within the `lab/` directory.
+2. Code is executed modularly using Node.js via the terminal, e.g., `node lab/Lab5/Lab_05_JS_Concepts/script.js`.
+
+---
+
 ### Running the Server
 1. Navigate to the server folder:
    ```bash

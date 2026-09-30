@@ -17,6 +17,30 @@ loginpage/
     styles.css       — Minimal plain CSS
 ```
 
+## Development & Installation Process
+
+1. **Initialize Project:**
+   ```bash
+   npm init -y
+   ```
+   *This initializes a new Node.js project and creates the `package.json` file.*
+
+2. **Install Required Dependencies:**
+   ```bash
+   npm install express express-session cookie-parser bcrypt ejs
+   ```
+   *   **express**: Web framework used to set up the server.
+   *   **express-session**: Used for managing user sessions.
+   *   **cookie-parser**: Used to parse and set custom cookies.
+   *   **bcrypt**: Used to securely hash user passwords.
+   *   **ejs**: Templating engine for rendering dynamic HTML views.
+
+3. **Install Development Dependencies:**
+   ```bash
+   npm install --save-dev nodemon
+   ```
+   *   **nodemon**: Utility that automatically restarts the Node.js application when file changes in the directory are detected.
+
 ## How to Run
 
 1. Install dependencies:

@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'todo',  # Our To-Do application (must be added so Django discovers its models, views, templates)
+    'todo.apps.TodoConfig',  # Tell Django to load the To-Do application configuration
 ]
 
 MIDDLEWARE = [

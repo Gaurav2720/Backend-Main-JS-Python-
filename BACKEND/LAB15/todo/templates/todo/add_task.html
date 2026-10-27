@@ -1,29 +1,16 @@
-{# todo/templates/todo/add_task.html #}
-{# Child of base.html with the "add task" form. #}
-
 {% extends 'todo/base.html' %}
 
-{% block title %}Add Task - Django To-Do{% endblock %}
+{% block title %}Add Task | Task Tracker{% endblock %}
 
 {% block content %}
-
-    <h2>Add a New Task</h2>
-
-    {# method="post" -> sends the form data to add_task (which creates the row) #}
+<section class="panel">
+    <h1>Add a task</h1>
     <form method="post" class="task-form">
-        {% csrf_token %}  {# REQUIRED in every Django POST form (security token) #}
-
-        <label for="title">Task title:</label>
-        <input type="text"
-               id="title"
-               name="title"          {# name="title" -> request.POST['title'] in the view #}
-               maxlength="200"       {# same limit as the model's CharField #}
-               required
-               placeholder="e.g. Finish lab record">
-
-        <button type="submit" class="btn">Add Task</button>
+        {% csrf_token %}
+        <label for="title">Task title</label>
+        <input id="title" type="text" name="title" maxlength="200" required placeholder="e.g. Finish lab manual">
+        <button type="submit">Save task</button>
     </form>
-
-    <p><a href="{% url 'task_list' %}">&larr; Back to task list</a></p>
-
+    <p><a href="{% url 'task_list' %}">Back to task list</a></p>
+</section>
 {% endblock %}

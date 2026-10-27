@@ -1,0 +1,20 @@
+{# todo/templates/todo/includes/task_item.html #}
+{# A reusable COMPONENT (partial): renders a single task row. #}
+{# It expects a variable named 'task' from the page that includes it. #}
+{# The {% for task in tasks %} loop in task_list.html provides it. #}
+
+<li class="task-item {% if task.completed %}done{% endif %}">
+    {# .done class adds strikethrough styling for completed tasks #}
+
+    <span class="task-title">{{ task.title }}</span>
+
+    <span class="task-meta">{{ task.created_at|date:"d M Y, H:i" }}</span>
+
+    {# Toggle link -> toggle_task view flips completed True/False #}
+    <a class="btn small" href="{% url 'toggle_task' task.pk %}">
+        {% if task.completed %}Mark Incomplete{% else %}Mark Complete{% endif %}
+    </a>
+
+    {# Delete link -> delete_task view removes the row #}
+    <a class="btn small danger" href="{% url 'delete_task' task.pk %}">Delete</a>
+</li>

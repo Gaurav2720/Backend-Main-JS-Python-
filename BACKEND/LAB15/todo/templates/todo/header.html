@@ -1,0 +1,11 @@
+{% load static %}
+<header class="site-header">
+    <a class="site-title" href="{% url 'task_list' %}">
+        <img src="{% static 'todo/images/logo.png' %}" alt="Task Tracker logo" width="36" height="36">
+        <span>Task Tracker</span>
+    </a>
+    <nav aria-label="Main navigation">
+        <a href="{% url 'task_list' %}">All tasks</a>
+        <a href="{% url 'add_task' %}">Add task</a>
+    </nav>
+</header>

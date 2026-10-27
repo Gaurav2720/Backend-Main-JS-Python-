@@ -1,0 +1,162 @@
+/* todo/static/todo/css/style.css */
+/* Use a consistent box model so element sizes are easier to reason about. */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    color: #202938;
+    background: #f4f6fa;
+}
+
+.site-header, .site-footer {
+    padding: 1rem 5%;
+    background: #ffffff;
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid #d8deea;
+}
+
+.site-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    color: #111827;
+    text-decoration: none;
+    font-size: 1.25rem;
+}
+
+.site-header nav {
+    display: flex;
+    gap: 1rem;
+}
+
+.site-header nav a {
+    color: #4b5563;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.site-header nav a:hover {
+    color: #2457c5;
+}
+
+.container {
+    width: min(900px, 92%);
+    margin: 2rem auto;
+}
+
+.panel {
+    padding: 1.5rem;
+    background: #ffffff;
+    border: 1px solid #d8deea;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.panel h1 {
+    margin-top: 0;
+    color: #111827;
+}
+
+.task-list {
+    padding: 0;
+    margin: 1.5rem 0 0;
+    list-style: none;
+}
+
+.task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid #e5e9f1;
+}
+
+.task-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.completed {
+    color: #687386;
+    text-decoration: line-through;
+}
+
+button, .button {
+    display: inline-block;
+    padding: 0.55rem 0.85rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: #2457c5;
+    color: white;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover, .button:hover {
+    background: #1b449c;
+}
+
+button.danger {
+    background: #a62b37;
+}
+
+button.danger:hover {
+    background: #841f2a;
+}
+
+.task-form {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 30rem;
+    margin-top: 1rem;
+}
+
+.task-form label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.task-form input {
+    padding: 0.65rem;
+    border: 1px solid #aeb8c8;
+    border-radius: 0.35rem;
+    font: inherit;
+}
+
+.task-form input:focus {
+    outline: 2px solid #2457c5;
+    border-color: #2457c5;
+}
+
+.site-footer {
+    border-top: 1px solid #d8deea;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 3rem;
+}
+
+@media (max-width: 600px) {
+    /* Stack navigation and task controls on narrow screens. */
+    .site-header, .task-item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}

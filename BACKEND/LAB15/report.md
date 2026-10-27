@@ -26,6 +26,7 @@ This document details:
 ```text
 LAB15/
 ├── manage.py                  # Command-line entry point for project administration
+├── db.sqlite3                 # SQLite database storage
 ├── venv/                      # Isolated Python virtual environment
 ├── todo_project/              # Project configuration package (Container)
 │   ├── __init__.py            # Marks directory as a Python package
@@ -39,9 +40,23 @@ LAB15/
     ├── apps.py                # Application metadata and registry configuration
     ├── models.py              # Data models and database schema definition (ORM)
     ├── views.py               # Request handlers and business logic
-    ├── tests.py               # Unit and integration test suites
-    └── migrations/            # Database schema migration history
-        └── __init__.py
+    ├── urls.py                # Application-level route definitions
+    ├── tests.py               # Automated unit and integration test suite
+    ├── migrations/            # Database schema migration history
+    │   └── 0001_initial.py
+    ├── templates/todo/        # Presentation layer templates
+    │   ├── base.html          # Master layout with block tags and static links
+    │   ├── header.html        # Reusable component with branding and navigation
+    │   ├── footer.html        # Reusable footer component
+    │   ├── task_list.html     # Task listing child template (extends base.html)
+    │   └── add_task.html      # Task creation form child template (extends base.html)
+    └── static/todo/           # Application-namespaced static assets
+        ├── css/
+        │   └── style.css      # Responsive styles and media queries
+        ├── js/
+        │   └── app.js         # Client-side DOM scripts (input focus)
+        └── images/
+            └── logo.png       # Application branding logo
 ```
 
 ---
@@ -442,11 +457,13 @@ from django.test import TestCase
 
 ## 7. Practical Implementation Guide: Building the To-Do Application
 
-To demonstrate how the scaffolded files in `LAB15` function together, the following implementation demonstrates building a complete To-Do feature.
+The following steps document the exact, complete, and verified implementation of the To-Do application in `LAB15`, fully compliant with the Experiment 15 manual and 20-mark evaluation rubric.
 
-### Step 1: Register `todo` App in `todo_project/settings.py`
+---
 
-Add `'todo'` to `INSTALLED_APPS`:
+### Step 1: Register Application in `todo_project/settings.py`
+
+In `todo_project/settings.py`, register the app configuration class:
 
 ```python
 INSTALLED_APPS = [
@@ -456,7 +473,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'todo',  # Registered local application
+    'todo.apps.TodoConfig',  # Tell Django to load the To-Do application configuration
 ]
 ```
 
@@ -464,27 +481,36 @@ INSTALLED_APPS = [
 
 ### Step 2: Define Data Model in `todo/models.py`
 
+The data model defines the schema for tasks stored in SQLite (`db.sqlite3`):
+
 ```python
 from django.db import models
 
 
 class Task(models.Model):
-    title = models.CharField(max_length=200, help_text="Title of the task")
-    description = models.TextField(blank=True, null=True, help_text="Detailed task description")
-    completed = models.BooleanField(default=False, help_text="Completion status")
-    created_at = models.DateTimeField(auto_now_add=True, help_text="Timestamp when task was created")
-    updated_at = models.DateTimeField(auto_now=True, help_text="Timestamp when task was last modified")
-
-    class Meta:
-        ordering = ['-created_at']
+    # Store the short description entered by the user
+    title = models.CharField(max_length=200)
+    # New tasks are incomplete unless explicitly changed
+    completed = models.BooleanField(default=False)
+    # Django records the creation time when the row is first saved
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} ({'Done' if self.completed else 'Pending'})"
+        # Use the task title in the admin site and object representations
+        return self.title
+```
+
+Apply migrations from the project root:
+```bash
+python manage.py makemigrations todo
+python manage.py migrate
 ```
 
 ---
 
 ### Step 3: Register Model in `todo/admin.py`
+
+Register `Task` with customized display, filters, search, and list-editable status:
 
 ```python
 from django.contrib import admin
@@ -493,135 +519,257 @@ from .models import Task
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('title', 'completed', 'created_at', 'updated_at')
-    list_filter = ('completed', 'created_at')
-    search_fields = ('title', 'description')
+    # Show these fields as columns on the task listing page
+    list_display = ('title', 'completed', 'created_at')
+    # Add a sidebar filter for the completion state
+    list_filter = ('completed',)
+    # Allow staff to search task titles
+    search_fields = ('title',)
+    # Make the completion field editable directly in the list
     list_editable = ('completed',)
 ```
 
 ---
 
-### Step 4: Create Views in `todo/views.py`
+### Step 4: Configure App Metadata in `todo/apps.py`
 
 ```python
-from django.shortcuts import render, redirect, get_object_or_404
+from django.apps import AppConfig
+
+
+class TodoConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'todo'
+    verbose_name = 'To-Do Tasks'
+```
+
+---
+
+### Step 5: Implement Views in `todo/views.py`
+
+Ensure that state-changing operations are restricted to **POST** requests via the `@require_POST` decorator:
+
+```python
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 from .models import Task
 
 
 def task_list(request):
-    """View to list all tasks and create a new task."""
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description', '')
-        if title:
-            Task.objects.create(title=title, description=description)
-        return redirect('task_list')
-
-    tasks = Task.objects.all()
+    """Read tasks from newest to oldest and pass them to the template."""
+    tasks = Task.objects.all().order_by('-created_at')
     return render(request, 'todo/task_list.html', {'tasks': tasks})
 
 
+def add_task(request):
+    """Only create a task when the form is submitted with POST."""
+    if request.method == 'POST':
+        title = request.POST.get('title', '').strip()
+        # Ignore empty or whitespace-only titles
+        if title:
+            Task.objects.create(title=title)
+        # Redirect after processing to avoid accidental resubmission
+        return redirect('task_list')
+    # GET requests display the blank form
+    return render(request, 'todo/add_task.html')
+
+
+@require_POST
 def toggle_task(request, task_id):
-    """View to toggle completion status of a task."""
-    task = get_object_or_404(Task, id=task_id)
+    """Safely toggle task completed state via POST."""
+    task = get_object_or_404(Task, pk=task_id)
     task.completed = not task.completed
-    task.save()
+    task.save(update_fields=['completed'])
     return redirect('task_list')
 
 
+@require_POST
 def delete_task(request, task_id):
-    """View to delete a task."""
-    task = get_object_or_404(Task, id=task_id)
+    """Safely delete a task via POST."""
+    task = get_object_or_404(Task, pk=task_id)
     task.delete()
     return redirect('task_list')
 ```
 
 ---
 
-### Step 5: Configure Application URLs in `todo/urls.py`
+### Step 6: Configure Application URLs
 
-Create `todo/urls.py`:
-
+**`todo/urls.py`**:
 ```python
 from django.urls import path
 from . import views
 
 urlpatterns = [
     path('', views.task_list, name='task_list'),
+    path('add/', views.add_task, name='add_task'),
     path('toggle/<int:task_id>/', views.toggle_task, name='toggle_task'),
     path('delete/<int:task_id>/', views.delete_task, name='delete_task'),
 ]
 ```
 
-Include it in `todo_project/urls.py`:
-
+**`todo_project/urls.py`**:
 ```python
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('todo.urls')),  # Delegate root routes to todo app
+    path('', include('todo.urls')),
 ]
 ```
 
 ---
 
-### Step 6: Create HTML Template in `todo/templates/todo/task_list.html`
+### Step 7: Template Architecture (Inheritance & Includes)
 
+#### 1. Header Partial (`todo/templates/todo/header.html`)
 ```html
-<!DOCTYPE html>
+{% load static %}
+<header class="site-header">
+    <a class="site-title" href="{% url 'task_list' %}">
+        <img src="{% static 'todo/images/logo.png' %}" alt="Task Tracker logo" width="36" height="36">
+        <span>Task Tracker</span>
+    </a>
+    <nav aria-label="Main navigation">
+        <a href="{% url 'task_list' %}">All tasks</a>
+        <a href="{% url 'add_task' %}">Add task</a>
+    </nav>
+</header>
+```
+
+#### 2. Footer Partial (`todo/templates/todo/footer.html`)
+```html
+<footer class="site-footer">
+    <p>Task Tracker &mdash; Django learning project</p>
+</footer>
+```
+
+#### 3. Base Layout (`todo/templates/todo/base.html`)
+```html
+{% load static %}
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Django To-Do List</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; background: #f8fafc; color: #1e293b; }
-        h1 { text-align: center; color: #0f172a; }
-        .card { background: white; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); margin-bottom: 24px; }
-        form input, form textarea { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-        form button { background: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; }
-        form button:hover { background: #1d4ed8; }
-        ul { list-style: none; padding: 0; }
-        li { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        .done { text-decoration: line-through; color: #94a3b8; }
-        .btn-toggle { color: #10b981; text-decoration: none; margin-right: 8px; font-weight: bold; }
-        .btn-delete { color: #ef4444; text-decoration: none; font-weight: bold; }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Task Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'todo/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <h1>To-Do List</h1>
-    <div class="card">
-        <form method="POST" action="{% url 'task_list' %}">
-            {% csrf_token %}
-            <input type="text" name="title" placeholder="What needs to be done?" required>
-            <textarea name="description" placeholder="Optional details..." rows="2"></textarea>
-            <button type="submit">Add Task</button>
-        </form>
-    </div>
+    {% include 'todo/header.html' %}
 
-    <div class="card">
-        <ul>
-            {% for task in tasks %}
-                <li>
-                    <span class="{% if task.completed %}done{% endif %}">
-                        <strong>{{ task.title }}</strong>
-                        {% if task.description %}<br><small>{{ task.description }}</small>{% endif %}
-                    </span>
-                    <div>
-                        <a href="{% url 'toggle_task' task.id %}" class="btn-toggle">{% if task.completed %}↺ Undo{% else %}✓ Done{% endif %}</a>
-                        <a href="{% url 'delete_task' task.id %}" class="btn-delete">✕ Delete</a>
-                    </div>
-                </li>
-            {% empty %}
-                <li style="justify-content: center; color: #64748b;">No tasks yet. Enjoy your day!</li>
-            {% endfor %}
-        </ul>
-    </div>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'todo/footer.html' %}
+
+    <script src="{% static 'todo/js/app.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
 ```
+
+#### 4. Task List Page (`todo/templates/todo/task_list.html`)
+```html
+{% extends 'todo/base.html' %}
+
+{% block title %}My Tasks | Task Tracker{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>My To-Do List</h1>
+    <p>Track your work and mark tasks complete when they are done.</p>
+    <p><a class="button" href="{% url 'add_task' %}">Add a task</a></p>
+
+    <ul class="task-list">
+        {% for task in tasks %}
+            <li class="task-item">
+                <span class="{% if task.completed %}completed{% endif %}">
+                    {{ task.title }}
+                </span>
+                <div class="task-actions">
+                    <form method="post" action="{% url 'toggle_task' task.id %}">
+                        {% csrf_token %}
+                        <button type="submit">
+                            {% if task.completed %}Mark incomplete{% else %}Mark complete{% endif %}
+                        </button>
+                    </form>
+                    <form method="post" action="{% url 'delete_task' task.id %}">
+                        {% csrf_token %}
+                        <button class="danger" type="submit">Delete</button>
+                    </form>
+                </div>
+            </li>
+        {% empty %}
+            <li>No tasks yet. Add your first task.</li>
+        {% endfor %}
+    </ul>
+</section>
+{% endblock %}
+```
+
+#### 5. Add Task Page (`todo/templates/todo/add_task.html`)
+```html
+{% extends 'todo/base.html' %}
+
+{% block title %}Add Task | Task Tracker{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Add a task</h1>
+    <form method="post" class="task-form">
+        {% csrf_token %}
+        <label for="title">Task title</label>
+        <input id="title" type="text" name="title" maxlength="200" required placeholder="e.g. Finish lab manual">
+        <button type="submit">Save task</button>
+    </form>
+    <p><a href="{% url 'task_list' %}">Back to task list</a></p>
+</section>
+{% endblock %}
+```
+
+---
+
+### Step 8: Client-Side Script (`todo/static/todo/js/app.js`)
+
+Enhances the UI by automatically placing cursor focus into the task title input:
+
+```javascript
+document.addEventListener("DOMContentLoaded", function () {
+    const titleInput = document.querySelector("#title");
+    if (titleInput) {
+        titleInput.focus();
+    }
+    console.log("Task Tracker JavaScript loaded.");
+});
+```
+
+---
+
+### Step 9: Essential Conceptual Distinctions (Submission & Viva)
+
+#### 1. Difference Between `admin.py` and `apps.py`
+| Dimension | `admin.py` | `apps.py` |
+| :--- | :--- | :--- |
+| **Primary Purpose** | Registers models and customizes their presentation in Django's administrative interface. | Configures application metadata and runtime lifecycle behavior. |
+| **Typical Customizations** | Column listings (`list_display`), search inputs (`search_fields`), filters (`list_filter`), and in-place editing (`list_editable`). | Application verbose name (`verbose_name`), default primary key generator (`default_auto_field`), and signal registration via `ready()`. |
+| **Execution Point** | Loaded by Django when building the admin site URL routing tree. | Executed early during Django startup when initializing the application registry. |
+
+#### 2. Difference Between `{% extends %}` and `{% include %}`
+| Feature | `{% extends '...' %}` | `{% include '...' %}` |
+| :--- | :--- | :--- |
+| **Concept** | **Template Inheritance (Parent-Child)** | **Template Composition (Fragment Ingestion)** |
+| **Relationship** | The child template inherits the entire skeletal markup from the parent and overrides designated `{% block %}` sections. | The target template fragment is directly parsed and injected into the current template location. |
+| **Location** | Must be the **first line** of the child template. | Can be placed anywhere inside template markup. |
+| **Typical Use** | `base.html` providing shared `<html>`, `<head>`, stylesheets, scripts, and layout containers. | Small reusable UI components (`header.html`, `footer.html`, navigation bars). |
+
+#### 3. Why State-Changing Actions Use POST with `{% csrf_token %}` Instead of GET
+* **Idempotency & Safety**: HTTP GET requests must remain idempotent and safe (retrieving information without modifying server-side state). Search engines, browser pre-fetching engines, and web crawlers can automatically click GET links, causing unintended deletion or toggling of records.
+* **Cross-Site Request Forgery (CSRF) Protection**: A malicious external site can easily trigger a GET request (e.g., via `<img src="http://127.0.0.1:8000/delete/1/">`) without the user's consent. Using HTTP POST combined with Django's `{% csrf_token %}` ensures that only forms originating from the legitimate authenticated session can execute mutations.
+* **HTTP Method Enforcement**: The `@require_POST` decorator explicitly blocks GET requests with HTTP 405 (Method Not Allowed), providing strict defensive security.
 
 ---
 

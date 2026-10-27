@@ -1,0 +1,103 @@
+/* static/todo/style.css
+   Loaded by base.html with {% static 'todo/style.css' %}
+   Served automatically by the dev server because:
+     - 'django.contrib.staticfiles' is in INSTALLED_APPS
+     - STATICFILES_DIRS in settings.py points to the project's 'static' folder
+*/
+
+/* ---------- Page ---------- */
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+/* ---------- Header + navigation (from base.html) ---------- */
+.site-header {
+    background: #2c3e50;
+    color: #fff;
+    padding: 12px 24px;
+    display: flex;            /* logo on the left, nav on the right */
+    justify-content: space-between;
+    align-items: center;
+}
+.logo { margin: 0; font-size: 22px; }
+.logo a { color: #fff; text-decoration: none; }
+
+.nav a {
+    color: #ecf0f1;
+    text-decoration: none;
+    margin-left: 16px;
+    font-weight: bold;
+}
+.nav a:hover { text-decoration: underline; }
+
+/* ---------- Main container ---------- */
+.container {
+    max-width: 720px;
+    margin: 24px auto;
+    background: #fff;
+    padding: 20px 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.empty { color: #777; font-style: italic; }
+
+/* ---------- Task list ---------- */
+.task-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 6px;
+    border-bottom: 1px solid #eee;
+}
+.task-title { flex: 1; }           /* title takes the free space */
+.task-meta  { color: #999; font-size: 12px; }
+
+/* Completed tasks: strikethrough + grey text */
+.task-item.done .task-title {
+    text-decoration: line-through;
+    color: #999;
+}
+
+/* ---------- Buttons and links ---------- */
+.btn {
+    display: inline-block;
+    background: #27ae60;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+.btn:hover { opacity: 0.9; }
+.btn.small  { padding: 4px 8px; font-size: 12px; }
+.btn.danger { background: #e74c3c; }
+
+/* ---------- Form (add_task.html) ---------- */
+.task-form label { display: block; margin-bottom: 6px; font-weight: bold; }
+.task-form input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;       /* padding included in the 100% width */
+    padding: 8px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* ---------- Footer (from base.html) ---------- */
+.site-footer {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    padding: 16px;
+}

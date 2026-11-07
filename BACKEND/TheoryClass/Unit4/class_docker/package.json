@@ -1,0 +1,16 @@
+{
+  "name": "student-management",
+  "version": "1.0.0",
+  "description": "Student Management Express application running inside Ubuntu Docker container",
+  "main": "student-app.js",
+  "scripts": {
+    "start": "node student-app.js",
+    "dev": "nodemon student-app.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

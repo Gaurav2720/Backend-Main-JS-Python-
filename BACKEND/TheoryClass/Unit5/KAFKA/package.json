@@ -1,0 +1,16 @@
+{
+  "name": "kafka-attendance-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Event-driven Kafka attendance system: attendance -> records -> alert",
+  "scripts": {
+    "start": "node start.js",
+    "attendance": "node attendance-service.js",
+    "records": "node records-service.js",
+    "alert": "node alert-service.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "kafkajs": "^2.2.4"
+  }
+}

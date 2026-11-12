@@ -1,0 +1,16 @@
+{% extends 'todo/base.html' %}
+
+{% block title %}Add Task | Task Tracker{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h1>Add a task</h1>
+    <form method="post" class="task-form">
+        {% csrf_token %}
+        <label for="title">Task title</label>
+        <input id="title" type="text" name="title" maxlength="200" required placeholder="e.g. Finish lab manual">
+        <button type="submit">Save task</button>
+    </form>
+    <p><a href="{% url 'task_list' %}">Back to task list</a></p>
+</section>
+{% endblock %}

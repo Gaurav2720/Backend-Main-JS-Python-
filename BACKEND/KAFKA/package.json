@@ -1,0 +1,15 @@
+{
+  "name": "kafka-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Beginner-friendly Kafka demo: order -> inventory -> notification",
+  "scripts": {
+    "order": "node order-service.js",
+    "inventory": "node inventory-service.js",
+    "notification": "node notification-service.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "kafkajs": "^2.2.4"
+  }
+}

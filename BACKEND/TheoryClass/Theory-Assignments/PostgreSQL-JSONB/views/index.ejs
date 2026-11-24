@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL JSONB — Practical Demonstration</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="page-header">
+      <div class="badge">Theory Assignment 2</div>
+      <h1>PostgreSQL JSONB Deep Dive</h1>
+      <p class="subtitle">Exploring Binary JSON Storage, Containment Queries (<code>@&gt;</code>), and GIN Indexing</p>
+      <div class="mode-indicator">
+        Connection Status: <strong><%= connectionMode %></strong>
+      </div>
+    </header>
+
+    <!-- Query Inspector -->
+    <section class="card query-card">
+      <div class="card-header">
+        <h3>🔍 Active SQL Query with JSONB Operator</h3>
+      </div>
+      <pre class="sql-box"><code><%= activeQuery %></code></pre>
+      <div class="filter-controls">
+        <a href="/" class="btn btn-outline">Reset Filter</a>
+        <a href="/?tag=laptop" class="btn btn-tag">Filter Tag: "laptop" (<code>@&gt;</code>)</a>
+        <a href="/?brand=Apple" class="btn btn-tag">Filter Brand: "Apple" (<code>-&gt;&gt;</code>)</a>
+        <a href="/?brand=Sony" class="btn btn-tag">Filter Brand: "Sony" (<code>-&gt;&gt;</code>)</a>
+      </div>
+    </section>
+
+    <!-- Comparative Theory Matrix -->
+    <section class="card comparison-card">
+      <h3>📊 JSON vs JSONB: Architectural Comparison</h3>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th><code>JSON</code> Type</th>
+              <th><code>JSONB</code> Type (Binary JSON)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Storage Format</strong></td>
+              <td>Exact text copy of input (whitespace preserved)</td>
+              <td>Decomposed binary format (optimized internal representation)</td>
+            </tr>
+            <tr>
+              <td><strong>Write Performance</strong></td>
+              <td>Faster (no parsing or tree generation on insert)</td>
+              <td>Slightly slower (overhead of binary decomposition)</td>
+            </tr>
+            <tr>
+              <td><strong>Read / Query Speed</strong></td>
+              <td>Slower (re-parsed on every query execution)</td>
+              <td><strong>Significantly faster</strong> (direct key indexing & traversal)</td>
+            </tr>
+            <tr>
+              <td><strong>Indexing Capability</strong></td>
+              <td>Limited (function-based / expression indexes only)</td>
+              <td><strong>Full GIN (Generalized Inverted Index)</strong> support</td>
+            </tr>
+            <tr>
+              <td><strong>Duplicate Keys</strong></td>
+              <td>Preserves all duplicate keys</td>
+              <td>Eliminates duplicates (keeps only the last value)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Product Records -->
+    <section class="card">
+      <h3>📦 Products with JSONB Dynamic Attributes</h3>
+      <div class="products-grid">
+        <% products.forEach(p => { %>
+          <div class="product-item">
+            <div class="product-top">
+              <h4><%= p.name %></h4>
+              <span class="price">$<%= p.price %></span>
+            </div>
+            <div class="category-badge"><%= p.category %></div>
+
+            <div class="json-display">
+              <span class="json-label">attributes (JSONB):</span>
+              <pre><code><%= JSON.stringify(p.attributes, null, 2) %></code></pre>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes Application — LocalStorage Persistence</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation & Creation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-badge">Theory Assignment 1</div>
+        <h2>NoteSphere</h2>
+        <p class="brand-sub">Client-Side Persistent Storage</p>
+      </div>
+
+      <!-- Note Creation Form -->
+      <div class="note-editor-card">
+        <h3 id="formTitle">Create New Note</h3>
+        <form id="noteForm">
+          <input type="hidden" id="editNoteId" value="">
+
+          <div class="form-group">
+            <label for="noteTitle">Title</label>
+            <input type="text" id="noteTitle" placeholder="Enter note title..." required maxlength="80">
+          </div>
+
+          <div class="form-group">
+            <label for="noteCategory">Category / Tag</label>
+            <select id="noteCategory">
+              <option value="Work">💼 Work</option>
+              <option value="Study" selected>📚 Study</option>
+              <option value="Personal">🏠 Personal</option>
+              <option value="Ideas">💡 Ideas</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="noteContent">Content</label>
+            <textarea id="noteContent" rows="5" placeholder="Write your thoughts here..." required></textarea>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input type="checkbox" id="notePinned">
+            <label for="notePinned">📌 Pin note to top</label>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="saveBtn" class="btn btn-primary">Save Note</button>
+            <button type="button" id="cancelBtn" class="btn btn-secondary" style="display: none;">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- LocalStorage Diagnostic Widget -->
+      <div class="storage-widget">
+        <div class="storage-header">
+          <span>LocalStorage Status</span>
+          <span id="storageUsed" class="storage-tag">0 KB</span>
+        </div>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill" style="width: 2%;"></div>
+        </div>
+        <p class="storage-tip">Keys serialized via <code>JSON.stringify()</code></p>
+        <button id="clearAllBtn" class="btn btn-danger-outline">Clear All LocalStorage</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Action Bar -->
+      <header class="top-bar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search notes by title or content...">
+        </div>
+
+        <div class="filter-group">
+          <label>Filter:</label>
+          <select id="filterCategory">
+            <option value="ALL">All Categories</option>
+            <option value="Work">Work</option>
+            <option value="Study">Study</option>
+            <option value="Personal">Personal</option>
+            <option value="Ideas">Ideas</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Stats Bar -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-number" id="totalNotesCount">0</span>
+          <span class="stat-label">Total Notes</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="pinnedNotesCount">0</span>
+          <span class="stat-label">Pinned</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="activeCategoryCount">All</span>
+          <span class="stat-label">Active Filter</span>
+        </div>
+      </div>
+
+      <!-- Notes Grid -->
+      <section class="notes-section">
+        <div id="notesGrid" class="notes-grid">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon">📂</div>
+          <h3>No notes found</h3>
+          <p>Create a note on the left or adjust your search filter to see saved entries.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

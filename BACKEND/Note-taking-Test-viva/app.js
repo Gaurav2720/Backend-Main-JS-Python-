@@ -1,10 +1,12 @@
 const express = require("express");
 const { MongoClient, ObjectId } = require("mongodb");
+require("dotenv").config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// connecting to mongodb atlas
-const mongoURL = "mongodb+srv://iamgaurav2702_db_user:1Xj2yt4TqOgSze75@cluster0.jvvdmps.mongodb.net/?appName=Cluster0";
+// Connect to MongoDB (Atlas or local instance via environment variable)
+const mongoURL = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/notes_lab";
 const client = new MongoClient(mongoURL);
 let notesCollection;
 
@@ -52,7 +54,7 @@ app.post("/notes", async (req, res) => {
   }
   if (title.trim().length > 100) {
     return res.render("new", { error: "Title cannot exceed 100 characters.", title, content, category });
-clearImmediate  }
+}
   if (!content || !content.trim()) {
     return res.render("new", { error: "Content is required!", title, content, category });
   }

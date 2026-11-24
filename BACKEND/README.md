@@ -1,4 +1,4 @@
-# 🚀 Backend Web Development — Master Coursework Repository
+# 🚀 Backend Development
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)

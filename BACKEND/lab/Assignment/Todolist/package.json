@@ -1,0 +1,28 @@
+{
+  "name": "session-todo-app",
+  "version": "1.0.0",
+  "description": "Session-Based To-Do Web Application using Express.js and Express Sessions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "express",
+    "express-session",
+    "todo",
+    "session-storage",
+    "ejs"
+  ],
+  "author": "Gaurav Bhaskar",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

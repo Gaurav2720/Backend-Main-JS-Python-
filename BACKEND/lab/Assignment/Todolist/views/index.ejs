@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session-Based To-Do Application</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <div class="badge">Lab Assignment 2</div>
+      <h1>Session-Based To-Do App</h1>
+      <p class="subtitle">Stateful task management powered by Express Sessions</p>
+      <div class="session-info">
+        <span class="session-label">Session ID:</span>
+        <code><%= sessionId.substring(0, 14) %>...</code>
+      </div>
+    </header>
+
+    <% if (flash) { %>
+      <div class="alert alert-<%= flash.type %>">
+        <span><%= flash.message %></span>
+      </div>
+    <% } %>
+
+    <!-- Add Task Form -->
+    <div class="card add-card">
+      <form action="/tasks" method="POST" class="add-form">
+        <div class="input-group">
+          <input 
+            type="text" 
+            name="title" 
+            placeholder="What needs to be done today?" 
+            required 
+            autocomplete="off"
+            maxlength="200"
+          >
+          <select name="priority" class="priority-select">
+            <option value="Low">Low Priority</option>
+            <option value="Medium" selected>Medium Priority</option>
+            <option value="High">High Priority</option>
+          </select>
+          <button type="submit" class="btn btn-primary">+ Add Task</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stats & Filters Toolbar -->
+    <div class="toolbar card">
+      <div class="stats-pills">
+        <span class="pill">Total: <strong><%= stats.total %></strong></span>
+        <span class="pill pill-active">Active: <strong><%= stats.active %></strong></span>
+        <span class="pill pill-completed">Completed: <strong><%= stats.completed %></strong></span>
+      </div>
+
+      <div class="filter-tabs">
+        <a href="/?filter=all" class="tab <%= filter === 'all' ? 'active' : '' %>">All</a>
+        <a href="/?filter=active" class="tab <%= filter === 'active' ? 'active' : '' %>">Active</a>
+        <a href="/?filter=completed" class="tab <%= filter === 'completed' ? 'active' : '' %>">Completed</a>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="task-list card">
+      <% if (tasks.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <h3>No tasks found</h3>
+          <p>
+            <% if (filter === 'completed') { %>
+              You haven't completed any tasks yet. Keep going!
+            <% } else if (filter === 'active') { %>
+              No active tasks left. Add one above!
+            <% } else { %>
+              Your session to-do list is clean. Add your first task above!
+            <% } %>
+          </p>
+        </div>
+      <% } else { %>
+        <ul class="tasks">
+          <% tasks.forEach(task => { %>
+            <li class="task-item <%= task.completed ? 'task-done' : '' %> priority-<%= task.priority.toLowerCase() %>">
+              <form action="/tasks/<%= task.id %>/toggle" method="POST" class="toggle-form">
+                <button type="submit" class="check-btn" title="Toggle status">
+                  <%= task.completed ? '✓' : '' %>
+                </button>
+              </form>
+
+              <div class="task-body">
+                <span class="task-title"><%= task.title %></span>
+                <div class="task-meta">
+                  <span class="priority-tag tag-<%= task.priority.toLowerCase() %>"><%= task.priority %></span>
+                  <span class="task-time"><%= task.createdAt %></span>
+                </div>
+              </div>
+
+              <form action="/tasks/<%= task.id %>/delete" method="POST" class="delete-form">
+                <button type="submit" class="btn-delete" title="Delete task">✕</button>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+
+    <!-- Footer Controls -->
+    <footer class="app-footer">
+      <div class="footer-actions">
+        <% if (stats.completed > 0) { %>
+          <form action="/tasks/clear-completed" method="POST">
+            <button type="submit" class="btn btn-secondary">Clear Completed (<%= stats.completed %>)</button>
+          </form>
+        <% } %>
+
+        <form action="/session/reset" method="POST" onsubmit="return confirm('Resetting will clear all your session tasks. Continue?');">
+          <button type="submit" class="btn btn-danger">Reset Session</button>
+        </form>
+      </div>
+
+      <div class="concept-callout">
+        <strong>💡 Key Architecture Insight:</strong> Task data persists across page refreshes via the 
+        server-side <code>express-session</code> store, tied to your browser's encrypted cookie ID. 
+        Opening another incognito window creates an independent task list!
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
